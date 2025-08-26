@@ -1,18 +1,34 @@
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AuthScreen() {
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const theme = useTheme();
+  const router = useRouter();
+  const { signUp, signIn } = useAuth();
 
-  const handleAuth = () => {
+  const handleAuth = async () => {
     if (!email || !password) {
       Alert.alert("Missing details", "Please enter your email and password.");
       return;
     }
+    if (password.length <6 || password.length >10) {
+      Alert.alert("Invalid password", "Password must be between 6 and 10 characters.");
+      return;
+    }
+    
+    if (isSignUp) {
+      await signUp(email, password);
+    } else {
+      await signIn(email, password);
+    }
+    router.replace("/");
   }
 
   const handleSwitchMode = () => {
@@ -47,7 +63,7 @@ export default function AuthScreen() {
           <TextInput
             label="Password"
             autoCapitalize="none"
-            keyboardType="email-address"
+            secureTextEntry={true}
             mode="outlined"
             style={styles.input}
             onChangeText={setPassword}
@@ -100,3 +116,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   }
 });
+function signIn(email: string, password: string) {
+  throw new Error("Function not implemented.");
+}
+
